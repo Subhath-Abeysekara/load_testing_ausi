@@ -1,6 +1,8 @@
-FROM node:14
+FROM node:20
 WORKDIR /usr/src/app
-COPY package*.json app.js ./
+COPY package*.json ./
 RUN npm install
+COPY . .
+RUN tsc
 EXPOSE 3000
-CMD [ "node" , "app.js" ]
+CMD ["ts-node", "app.ts"]

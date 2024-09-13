@@ -1,4 +1,5 @@
 import express from 'express';
+import { Response } from 'express';
 import multer from 'multer';
 import cors from 'cors'
 import bodyParser from "body-parser";
@@ -8,15 +9,12 @@ import addVideo from './addVideo'
 import getUserDownloads from './getUserDownloads'
 import getUserVideos from './getUserVideos'
 import convertvideo from './convertVideo'
-import { auth_return, return_ } from './types';
+import { auth_return, axio_post, return_ } from './types';
 import { authenticate } from './authentication/authenticate_token';
-import Multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import getVideoName from './getVideoName';
-import ffmpeg from 'fluent-ffmpeg';
-import { Request } from 'express-serve-static-core';
-import { ParsedQs } from 'qs';
+import axios, { AxiosResponse } from 'axios';
 // const __filename = "D:\Projects\Load_testing_ausi\app.ts"
 const dirname = "D:/Projects/Load_testing_ausi";
 const app: express.Application = express();
@@ -49,15 +47,6 @@ const storage = multer.diskStorage({
     limits: { fileSize: 100 * 1024 * 1024 }
   });
 
-  const convertVideo = (inputPath:any, outputPath: unknown) => {
-    return new Promise((resolve, reject) => {
-      ffmpeg(inputPath)
-        .output(outputPath)
-        .on('end', () => resolve(outputPath))
-        .on('error', (err: any) => reject(err))
-        .run();
-    });
-  };
 
 app.get('/', (_req, _res) => {
     console.log(_req.params)
@@ -114,54 +103,32 @@ app.get('/user/get_videos', (_req, _res) => {
 app.post('/convert', async (_req, _res) => {
     const x:any = convertvideo(_req , _res)
     console.log(x)
-    const inputVideoPath = path.join(__dirname,'uploads', x.url); // Input uploaded file path
-    const convert_name = `${Date.now()}-converted.mp4`
-    const outputVideoPath = path.join(__dirname, 'uploads', convert_name); // Output converted video path
-    try {
-      const convertedVideo = await convertVideo(inputVideoPath, outputVideoPath);
-      const videoPath = path.join(__dirname,'uploads', convert_name);
-  const videoStat = fs.statSync(videoPath);
-  const fileSize = videoStat.size;
-  const range = _req.headers.range;
-
-  if (range) {
-    // Handle range requests for video streaming
-    const parts = range.replace(/bytes=/, "").split("-");
-    const start = parseInt(parts[0], 10);
-    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-
-    const chunkSize = (end - start) + 1;
-    const file = fs.createReadStream(videoPath, { start, end });
-    const head = {
-      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-      'Accept-Ranges': 'bytes',
-      'Content-Length': chunkSize,
-      'Content-Type': 'video/mp4',
-    };
-
-    _res.writeHead(206, head); // Partial Content
-    file.pipe(_res);
-  } else {
-    // If no range header, send the entire video
-    const head = {
-      'Content-Length': fileSize,
-      'Content-Type': 'video/mp4',
-    };
-
-    _res.writeHead(200, head);
-    fs.createReadStream(videoPath).pipe(_res);
-  }
-      // res.send(`Video uploaded and converted successfully: ${convertedVideo}`);
-    } catch (err:any) {
-      _res.status(500).send(`Error converting video: ${err.message}`);
-    }
-    const response: return_={
-        state:true,
-        data:{
-            x
+    const postData: axio_post = {
+      url: '1726121432412-output_audio.wav'
+  };
+  try {
+    const axiosResponse: AxiosResponse<any> = await axios.post<any>(
+        'http://3.110.132.203:3001/convert', // Replace with your API endpoint
+        postData,
+        {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            responseType: 'stream',  // Ensure we get the response as a stream
         }
-    }
-    _res.send(response)
+    );
+
+    // Set headers for video response
+    _res.setHeader('Content-Type', 'video/mp4');  // Adjust if the video is of a different format
+    _res.setHeader('Content-Disposition', 'inline');  // inline will allow browser to play the video
+
+    // Pipe the video stream from the Axios response to the client
+    axiosResponse.data.pipe(_res);
+
+} catch (error) {
+    console.error('Error:', error);
+    _res.status(500).send('Error occurred while sending video');
+}
 });
 
 app.get('/user/get_downloads', (_req, _res) => {

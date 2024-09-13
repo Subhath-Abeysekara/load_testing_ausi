@@ -1,8 +1,9 @@
 import { url } from "inspector";
 import { authenticate } from "./authentication/authenticate_token";
 import {run_download , run_video} from "./connection_mongo";
-import { auth_return, download, user, video } from "./types";
+import { auth_return, axio_post, download, user, video } from "./types";
 import { ObjectId } from "mongodb";
+import axios, { AxiosResponse } from "axios";
 
 const operation = async (req:any , res:any) => {
     try{
@@ -24,7 +25,29 @@ const operation = async (req:any , res:any) => {
         client = await run_video()
         console.log(data);
         const video = await client.findOne({_id : new ObjectId(req.body.video_id)});
-        return video
+        console.log('video',video)
+        const postData: axio_post = {
+            url: video?.url
+        };
+        try {
+          const axiosResponse: AxiosResponse<any> = await axios.post<any>(
+              'http://3.110.132.203:3001/convert',
+              postData,
+              {
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  responseType: 'stream', 
+              }
+          );
+          res.setHeader('Content-Type', 'video/mp4'); 
+          res.setHeader('Content-Disposition', 'inline'); 
+          axiosResponse.data.pipe(res);
+      
+      } catch (error) {
+          console.error('Error:', error);
+          res.status(500).send('Error occurred while sending video');
+      }
     }
     }
     catch{

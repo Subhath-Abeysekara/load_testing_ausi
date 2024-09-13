@@ -101,34 +101,7 @@ app.get('/user/get_videos', (_req, _res) => {
 });
 
 app.post('/convert', async (_req, _res) => {
-    const x:any = convertvideo(_req , _res)
-    console.log(x)
-    const postData: axio_post = {
-      url: '1726121432412-output_audio.wav'
-  };
-  try {
-    const axiosResponse: AxiosResponse<any> = await axios.post<any>(
-        'http://3.110.132.203:3001/convert', // Replace with your API endpoint
-        postData,
-        {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            responseType: 'stream',  // Ensure we get the response as a stream
-        }
-    );
-
-    // Set headers for video response
-    _res.setHeader('Content-Type', 'video/mp4');  // Adjust if the video is of a different format
-    _res.setHeader('Content-Disposition', 'inline');  // inline will allow browser to play the video
-
-    // Pipe the video stream from the Axios response to the client
-    axiosResponse.data.pipe(_res);
-
-} catch (error) {
-    console.error('Error:', error);
-    _res.status(500).send('Error occurred while sending video');
-}
+    convertvideo(_req , _res)
 });
 
 app.get('/user/get_downloads', (_req, _res) => {

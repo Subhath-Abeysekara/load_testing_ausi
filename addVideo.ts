@@ -17,7 +17,7 @@ const operation = async (req:any , res:any , name_:any , title_:any) => {
         const extension = path.extname(req.file.originalname)
         const body:video= {
                 user_id:validity.userId,
-                url : `${name_}.${extension}`,
+                url : `${name_}${extension}`,
                 title:title_
         }
         const data = await client.insertOne(body);

@@ -85,14 +85,16 @@ app.get('/user/get_video_name', (_req, _res) => {
 });
 
 app.post('/upload', async (req, res, next) => {
-    await addVideo(req , res)
     next();
-  }, upload.single('file'), (req, res) => {
+  }, upload.single('file'), async (req, res) => {
     console.log("API working");
     if (!req.file) {
       return res.status(400).send('No file uploaded or invalid file type.');
     }
     console.log(req.file);
+    const name_ = req.body.name
+    const title_ = req.body.title
+    await addVideo(req , res , name_ , title_)
     res.send(`File uploaded successfully: ${req.file.filename}`);
   });
 

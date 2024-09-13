@@ -27,7 +27,8 @@ const operation = async (req:any , res:any) => {
         const video = await client.findOne({_id : new ObjectId(req.body.video_id)});
         console.log('video',video)
         const postData: axio_post = {
-            url: video?.url
+            url: video?.url,
+            type:req.body.type
         };
         try {
           const axiosResponse: AxiosResponse<any> = await axios.post<any>(
@@ -40,7 +41,7 @@ const operation = async (req:any , res:any) => {
                   responseType: 'stream', 
               }
           );
-          res.setHeader('Content-Type', 'video/mp4'); 
+          res.setHeader('Content-Type', `video/${req.body.type}`); 
           res.setHeader('Content-Disposition', 'inline'); 
           axiosResponse.data.pipe(res);
       

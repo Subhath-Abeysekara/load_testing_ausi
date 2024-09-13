@@ -50,5 +50,6 @@ export type auth_return={
 }
 
 export type axio_post={
-    url:string
+    url:string,
+    type?:string
 }

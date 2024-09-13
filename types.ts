@@ -47,3 +47,7 @@ export type auth_return={
     userId:string,
     condition:boolean
 }
+
+export type axio_post={
+    url:string
+}

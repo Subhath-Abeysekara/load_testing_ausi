@@ -15,6 +15,7 @@ const operation = async (req:any , res:any) => {
         const body:video= {
                 user_id:validity.userId,
                 url : req.body.name,
+                title:req.body.title
         }
         const data = await client.insertOne(body);
         console.log(data);

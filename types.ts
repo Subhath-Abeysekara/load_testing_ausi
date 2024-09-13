@@ -9,6 +9,7 @@ export type user={
 
 export type video={
     user_id:string,
+    title:string,
     url:string
 }
 

@@ -84,8 +84,8 @@ app.get('/user/get_video_name', (_req, _res) => {
     getVideoName(_req , _res)
 });
 
-app.post('/upload', (req, res, next) => {
-    addVideo(req , res)
+app.post('/upload', async (req, res, next) => {
+    await addVideo(req , res)
     next();
   }, upload.single('file'), (req, res) => {
     console.log("API working");

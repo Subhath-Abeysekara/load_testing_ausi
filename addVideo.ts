@@ -17,15 +17,17 @@ const operation = async (req:any , res:any) => {
         const extension = path.extname(req.file.originalname)
         const body:video= {
                 user_id:validity.userId,
-                url : `${req.body.name}${extension}`,
+                url : `${req.body.name}.${extension}`,
                 title:req.body.title
         }
         const data = await client.insertOne(body);
         console.log(data);
     }
     }
-    catch{
-        res.send("error")
+    catch(error){
+        console.log('error' , error)
+        // res.send("error" , error)
+        return
     }
 }
 

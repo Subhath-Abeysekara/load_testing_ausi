@@ -16,7 +16,7 @@ import fs from 'fs';
 import getVideoName from './getVideoName';
 import axios, { AxiosResponse } from 'axios';
 // const __filename = "D:\Projects\Load_testing_ausi\app.ts"
-const dirname = "D:/Projects/Load_testing_ausi";
+const dirname = "/home/ec2-user/load_testing_ausi";
 const app: express.Application = express();
 const port: number = 3000;
 app.use(cors())
